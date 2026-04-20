@@ -1,9 +1,9 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_URL,
 });
-
+/*http://localhost:5000/api  */
 export const registerAdmin = (data) => API.post("/auth/register", data);
 export const loginAdmin = (data) => API.post("/auth/login", data);
 export const getReports = () => API.get("/reports");
