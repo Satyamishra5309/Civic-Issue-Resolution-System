@@ -131,14 +131,7 @@ const handleSubmitFeedback = async () => {
     </div>
   </div>
 )}
-
-      {/* Assign Button */}
-      <button
-        onClick={() => setOpen(true)}
-        className="bg-blue-600 text-white px-4 py-2 rounded mt-4"
-      >
-        Assign Team
-      </button>
+      
 
       {/* Modal */}
       {open && (
