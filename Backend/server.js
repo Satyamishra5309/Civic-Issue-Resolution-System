@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import teamRoutes from "./routes/teamRoutes.js";
+import feedbackRoutes from "./routes/feedbackRoutes.js"
 
 dotenv.config();
 connectDB();
@@ -13,7 +16,10 @@ app.use(cors());
 app.use(express.json());
 
 // routes
+app.use("/api/auth", authRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/teams", teamRoutes);
+app.use("/api/feedback", feedbackRoutes )
 
 app.get("/", (req, res) => {
   res.send("API Running...");
@@ -21,6 +27,6 @@ app.get("/", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });

@@ -1,70 +1,58 @@
-import { useState } from "react";
-import { assignTeam } from "../services/api";
-import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
+import { getTeams } from "../services/api";
 
-const AssignModel = ({ setOpen, reportId, refresh }) => {
-  const [team, setTeam] = useState("");
-  const [priority, setPriority] = useState("");
+const AssignModel = ({ isOpen, onClose, onAssign, reportId }) => {
+  const [teams, setTeams] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState("");
 
-  const handleAssign = async () => {
-    if (!team || !priority) {
-      toast.error("Please fill all fields");
-      return;
-    }
+  useEffect(() => {
+    const fetchTeams = async () => {
+      const res = await getTeams();
+      setTeams(res.data);
+    };
 
-    try {
-      await assignTeam({
-        reportId,
-        team,
-        priority,
-      });
+    if (isOpen) fetchTeams();
+  }, [isOpen]);
 
-      toast.success("Team assigned successfully ✅");
-
-      setOpen(false);   // close modal
-      refresh();        // refresh table / details
-    } catch (error) {
-      toast.error("Assignment failed ❌");
-    }
-  };
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
       
-      <div className="bg-white p-6 rounded-xl w-96">
-        <h2 className="text-xl font-bold mb-4">Assign Team</h2>
+      <div className="bg-white p-6 rounded-xl w-96 shadow-lg">
 
-        {/* Team */}
+        <h2 className="text-lg font-semibold mb-4">Assign Team</h2>
+
+        {/* Dropdown */}
         <select
-          className="border p-2 w-full mb-4"
-          onChange={(e) => setTeam(e.target.value)}
+          className="border w-full p-2 mb-4 rounded"
+          onChange={(e) => setSelectedTeam(e.target.value)}
         >
           <option value="">Select Team</option>
-          <option value="Team A">Team A</option>
-          <option value="Team B">Team B</option>
-        </select>
-
-        {/* Priority */}
-        <select
-          className="border p-2 w-full mb-4"
-          onChange={(e) => setPriority(e.target.value)}
-        >
-          <option value="">Priority</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
+          {teams.map((t) => (
+            <option key={t._id} value={t._id}>
+              {t.name} ({t.status})
+            </option>
+          ))}
         </select>
 
         {/* Buttons */}
         <div className="flex justify-end gap-2">
-          <button onClick={() => setOpen(false)}>Cancel</button>
 
           <button
-            onClick={handleAssign}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
+            onClick={onClose}
+            className="px-3 py-1 bg-gray-300 rounded"
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={() => onAssign(reportId, selectedTeam)}
+            className="px-3 py-1 bg-blue-500 text-white rounded"
           >
             Assign
           </button>
+
         </div>
       </div>
     </div>

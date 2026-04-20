@@ -1,29 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const reportsData = [
-  {
-    id: 1,
-    type: "Road Damage",
-    status: "Pending",
-    priority: "High",
-    date: "2026-04-17",
-  },
-  {
-    id: 2,
-    type: "Water Leakage",
-    status: "In Progress",
-    priority: "Medium",
-    date: "2026-04-16",
-  },
-  {
-    id: 3,
-    type: "Garbage Issue",
-    status: "Completed",
-    priority: "Low",
-    date: "2026-04-15",
-  },
-];
+import { getReports } from "../services/api";
+import { assignTeam } from "../services/api";
+import AssignModel from "./AssignModel";
 
 const getStatusStyle = (status) => {
   switch (status) {
@@ -52,16 +31,67 @@ const getPriorityStyle = (priority) => {
 };
 
 const ReportTable = () => {
+  const [reports, setReports] = useState([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+const [selectedReport, setSelectedReport] = useState(null);
+
+
+const handleAssignSubmit = async (reportId, teamId) => {
+  try {
+    await assignTeam({ reportId, teamId });
+
+    alert("Team assigned ✅");
+
+    setModalOpen(false);
+
+    // temporary refresh
+    window.location.reload();
+
+  } catch (err) {
+    console.error(err);
+    alert("Assign failed ❌");
+  }
+};
+
   const navigate = useNavigate();
 
-  const filtered = reportsData.filter((r) => {
+  // 🔥 Fetch data from backend
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const res = await getReports();
+        console.log("DATA:", res.data);
+        setReports(res.data);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
+
+  // 🔍 Filter logic
+  const filtered = reports.filter((r) => {
     return (
-      r.type.toLowerCase().includes(search.toLowerCase()) &&
+      r.problem_type?.toLowerCase().includes(search.toLowerCase()) &&
       (status === "" || r.status === status)
     );
   });
+
+  // ⏳ Loading state
+  if (loading) {
+    return <p className="text-gray-500">Loading reports...</p>;
+  }
+
+  const handleAssign = (reportId) => {
+  setSelectedReport(reportId);
+  setModalOpen(true);
+};
 
   return (
     <div>
@@ -85,9 +115,9 @@ const ReportTable = () => {
       </div>
 
       {/* 📊 Table */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      <div className="bg-white rounded-xl shadow border">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
+          <thead className="bg-gray-100 text-gray-700 text-sm">
             <tr>
               <th className="p-4 text-left">Report ID</th>
               <th className="p-4 text-left">Issue</th>
@@ -95,6 +125,7 @@ const ReportTable = () => {
               <th className="p-4 text-left">Priority</th>
               <th className="p-4 text-left">Date</th>
               <th className="p-4 text-left">Action</th>
+              <th className="p-4 text-left">Team</th>
             </tr>
           </thead>
 
@@ -102,15 +133,22 @@ const ReportTable = () => {
             {filtered.length > 0 ? (
               filtered.map((r) => (
                 <tr
-                  key={r.id}
+                  key={r._id}
                   className="border-t hover:bg-gray-50 transition"
                 >
+
+                
+                  {/* ID */}
                   <td className="p-4 font-medium text-gray-700">
-                    #{r.id}
+                    #{r._id.slice(-5)}
                   </td>
 
-                  <td className="p-4 text-gray-600">{r.type}</td>
+                  {/* Issue */}
+                  <td className="p-4 text-gray-600">
+                    {r.problem_type}
+                  </td>
 
+                  {/* Status */}
                   <td className="p-4">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
@@ -121,6 +159,7 @@ const ReportTable = () => {
                     </span>
                   </td>
 
+                  {/* Priority */}
                   <td className="p-4">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityStyle(
@@ -131,28 +170,60 @@ const ReportTable = () => {
                     </span>
                   </td>
 
-                  <td className="p-4 text-gray-500">{r.date}</td>
+                  {/* Date */}
+                  <td className="p-4 text-gray-500">
+                    {new Date(r.submission_date).toLocaleDateString()}
+                  </td>
 
+                  {/* Action */}
                   <td className="p-4">
                     <button
-                      onClick={() => navigate(`/reports/${r.id}`)}
+                      onClick={() => navigate(`/reports/${r._id}`)}
                       className="text-blue-600 hover:underline font-medium"
                     >
                       View Details →
                     </button>
+
+                    <button
+    disabled={r.assignedTeam}
+    onClick={() => handleAssign(r._id)}
+    className={`px-2 py-1 rounded text-sm ${
+      r.assignedTeam
+        ? "bg-gray-300 cursor-not-allowed"
+        : "bg-green-500 text-white hover:bg-green-600"
+    }`}
+  >
+    {r.assignedTeam ? "Assigned" : "Assign"}
+  </button>
+
+
                   </td>
+                  <td className="p-4">
+  {r.assignedTeam ? r.assignedTeam.name : "Not Assigned"}
+</td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td colSpan="6" className="text-center p-6 text-gray-500">
-                  No reports found
+                  <div className="flex flex-col items-center justify-center py-10 text-gray-500">
+  <p className="text-lg">No reports found</p>
+  <p className="text-sm">Try adjusting filters</p>
+</div>
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+
+      <AssignModel
+  isOpen={modalOpen}
+  onClose={() => setModalOpen(false)}
+  onAssign={handleAssignSubmit}
+  reportId={selectedReport}
+/>
+
     </div>
   );
 };

@@ -5,7 +5,7 @@ const Sidebar = () => {
   const location = useLocation();
 
   const menu = [
-    { name: "Dashboard", path: "/", icon: <LayoutDashboard size={18} /> },
+    { name: "Dashboard", path: "/dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "Reports", path: "/reports", icon: <FileText size={18} /> },
     { name: "Teams", path: "/teams", icon: <Users size={18} /> },
     { name: "Feedback", path: "/feedback", icon: <MessageSquare size={18} /> },

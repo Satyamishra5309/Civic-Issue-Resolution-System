@@ -18,8 +18,10 @@ const reportSchema = new mongoose.Schema({
     default: "Low",
   },
 
-  assigned_team: {
-    type: String,
+  assignedTeam: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Team",
+    default: null,
   },
 
   submission_date: {
