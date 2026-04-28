@@ -4,9 +4,10 @@ const teamSchema = new mongoose.Schema({
   name: String,
   members: Number,
   status: {
-    type: String,
-    default: "Available",
-  },
+  type: String,
+  enum: ["Available", "Busy"],
+  default: "Available"
+},
 });
 
 export default mongoose.model("Team", teamSchema);
