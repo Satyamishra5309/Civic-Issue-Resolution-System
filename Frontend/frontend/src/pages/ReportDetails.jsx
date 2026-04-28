@@ -111,8 +111,7 @@ if (
       {report.image && (
         <div className="mt-4">
           <h3 className="font-semibold mb-2">Reported Image</h3>
-          <img
-            src={`http://localhost:5000${report.image}`}
+          <img src={report.image_url} 
             className="w-64 rounded shadow"
           />
         </div>
@@ -122,8 +121,8 @@ if (
       {report.completionImage && (
         <div className="mt-4">
           <h3 className="font-semibold mb-2">Completion Proof</h3>
-          <img
-            src={`http://localhost:5000${report.completionImage}`}
+         <img
+            src={report.completionImage}
             className="w-64 rounded shadow"
           />
         </div>

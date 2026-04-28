@@ -20,7 +20,9 @@ export const getReports = async (req, res) => {
 // ✅ GET single report
 export const getReportById = async (req, res) => {
   try {
-    const report = await Report.findById(req.params.id).populate("assignedTeam");
+    const report = await Report.findById(req.params.id)
+      .populate("assignedTeam");
+
     res.json(report);
   } catch (error) {
     res.status(404).json({ message: "Report not found" });
@@ -28,26 +30,27 @@ export const getReportById = async (req, res) => {
 };
 
 
-// 🟢 CREATE report (WITH IMAGE)
+// 🟢 CREATE report (USER - Cloudinary)
 export const createReport = async (req, res) => {
   try {
-    console.log("BODY:", req.body);
-
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+    const { problem_type, description, latitude, longitude } = req.body;
 
     const report = new Report({
-      ...req.body,
-      image: imagePath,
-      status: "Pending",
+      problem_type,
+      description,
+      latitude,
+      longitude,
+      image_url: req.file?.path || "", // ✅ Cloudinary URL
     });
 
     await report.save();
 
+    // 🔥 real-time update
     io.emit("new_issue", report);
 
     res.status(201).json(report);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -101,16 +104,21 @@ export const startWork = async (req, res) => {
 };
 
 
-// 🟣 FIELD WORKER: Upload completion proof
+// 🟣 FIELD WORKER: Upload completion proof (Cloudinary)
 export const uploadCompletionProof = async (req, res) => {
   const { reportId, lat, lng } = req.body;
 
   try {
     const report = await Report.findById(reportId);
 
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+    if (!report) {
+      return res.status(404).json({ msg: "Report not found" });
+    }
 
-    report.completionImage = imagePath;
+    // ✅ Cloudinary URL (IMPORTANT FIX)
+    const imageUrl = req.file?.path || "";
+
+    report.completionImage = imageUrl;
     report.completionLocation = {
       lat,
       lng,
@@ -120,6 +128,7 @@ export const uploadCompletionProof = async (req, res) => {
 
     await report.save();
 
+    // 🔥 real-time event
     io.emit("verification_pending", report);
 
     res.json({ msg: "Completion proof uploaded" });
@@ -134,7 +143,12 @@ export const verifyReport = async (req, res) => {
   const { reportId, approved } = req.body;
 
   try {
-    const report = await Report.findById(reportId).populate("assignedTeam");
+    const report = await Report.findById(reportId)
+      .populate("assignedTeam");
+
+    if (!report) {
+      return res.status(404).json({ msg: "Report not found" });
+    }
 
     if (approved) {
       report.status = "Completed";
@@ -146,9 +160,16 @@ export const verifyReport = async (req, res) => {
         await team.save();
       }
 
+      // 🔥 notify frontend
       io.emit("issue_completed", report);
+
     } else {
       report.verificationStatus = "Rejected";
+
+      // optional: revert to In Progress
+      report.status = "In Progress";
+
+      io.emit("issue_updated", report);
     }
 
     await report.save();
@@ -157,26 +178,4 @@ export const verifyReport = async (req, res) => {
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
-};
-
-
-// ❌ (OLD - keep for compatibility or remove later)
-export const completeReport = async (req, res) => {
-  const { reportId } = req.body;
-
-  const report = await Report.findById(reportId).populate("assignedTeam");
-
-  report.status = "Completed";
-
-  if (report.assignedTeam) {
-    const team = await Team.findById(report.assignedTeam._id);
-    team.status = "Available";
-    await team.save();
-  }
-
-  await report.save();
-
-  io.emit("issue_updated", report);
-
-  res.json({ msg: "Completed (legacy)" });
 };

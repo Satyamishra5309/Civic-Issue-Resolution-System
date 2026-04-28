@@ -34,7 +34,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/feedback", feedbackRoutes )
-app.use("/uploads", express.static("uploads"));
 
 app.get("/", (req, res) => {
   res.send("API Running...");
