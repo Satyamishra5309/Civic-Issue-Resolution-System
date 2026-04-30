@@ -4,12 +4,16 @@ import cloudinary from "../config/cloudinary.js";
 
 const storage = new CloudinaryStorage({
   cloudinary,
-  params: {
-    folder: "civic_reports",       // folder in Cloudinary
-    allowed_formats: ["jpg", "png", "jpeg"],
+  params: async (req, file) => {
+    return {
+      folder: "civic_reports",
+      format: "png", // or detect dynamically
+      public_id: Date.now() + "-" + file.originalname,
+    };
   },
 });
 
 const upload = multer({ storage });
 
 export default upload;
+

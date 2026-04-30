@@ -1,6 +1,8 @@
 import Report from "../models/report.js";
 import Team from "../models/teams.js";
 import { io } from "../server.js";
+import fs from "fs";
+import cloudinary from "../config/cloudinary.js";
 
 
 // ✅ GET all reports
@@ -31,26 +33,50 @@ export const getReportById = async (req, res) => {
 
 
 // 🟢 CREATE report (USER - Cloudinary)
+
+
 export const createReport = async (req, res) => {
   try {
-    const { problem_type, description, latitude, longitude } = req.body;
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+
+    const { problem_type, description } = req.body;
+
+    let lat = req.body.latitude;
+    let lng = req.body.longitude;
+
+    if (Array.isArray(lat)) lat = lat[0];
+    if (Array.isArray(lng)) lng = lng[0];
+
+    let imageUrl = "";
+
+    // ✅ CloudinaryStorage already uploaded file
+   if (req.file) {
+  const result = await cloudinary.uploader.upload(req.file.path);
+  imageUrl = result.secure_url;
+
+  console.log("Cloudinary URL:", imageUrl);
+}
 
     const report = new Report({
       problem_type,
       description,
-      latitude,
-      longitude,
-      image_url: req.file?.path || "", // ✅ Cloudinary URL
+      lat: parseFloat(lat),
+      lng: parseFloat(lng),
+      image: imageUrl,
     });
 
     await report.save();
 
-    // 🔥 real-time update
-    io.emit("new_issue", report);
+    if (io) {
+      io.emit("new_issue", report);
+    }
 
     res.status(201).json(report);
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 

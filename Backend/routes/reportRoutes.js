@@ -20,11 +20,18 @@ router.get("/:id", getReportById);
 
 
 // 🟢 USER: Create report (Cloudinary image)
-router.post(
-  "/",
-  upload.single("image"),
-  createReport
-);
+// router.post("/", (req, res, next) => {
+//   console.log("🔥 Route hit BEFORE multer");
+//   next();
+// }, upload.single("image"), (req, res, next) => {
+//   console.log("🔥 After multer:", req.file);
+//   next();
+// }, createReport);
+
+router.post("/", upload.single("image"), (req, res, next) => {
+  console.log("🔥 FILE AFTER FIX:", req.file);
+  next();
+}, createReport);
 
 
 // 🔵 ADMIN: Assign team

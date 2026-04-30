@@ -19,7 +19,8 @@ const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST", "PUT"]
-  }
+  },
+  transports: ["websocket", "polling"]
 });
 
 export {io};
@@ -28,13 +29,14 @@ app.use(cors({
   origin: "*"
 }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 // routes
 app.use("/api/auth", authRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/teams", teamRoutes);
 app.use("/api/feedback", feedbackRoutes )
-
 app.get("/", (req, res) => {
   res.send("API Running...");
 });
@@ -42,8 +44,8 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+  socket.on("disconnect", (reason) => {
+    console.log("🔴 User disconnected:", socket.id, "Reason:", reason);
   });
 });
 
