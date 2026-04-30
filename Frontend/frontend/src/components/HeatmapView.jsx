@@ -1,34 +1,41 @@
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import { useEffect } from "react";
 import L from "leaflet";
 import "leaflet.heat";
 
-const HeatmapView = ({ reports }) => {
+const HeatLayer = ({ reports }) => {
+  const map = useMap();
 
   useEffect(() => {
-    if (!reports || reports.length === 0) return;
+    const points = reports
+      .filter(r => r.latitude && r.longitude)
+      .map(r => [r.latitude, r.longitude, 0.5]);
 
-    const points = reports.map(r => [
-      r.latitude,
-      r.longitude,
-      0.5 // intensity
-    ]);
+    if (points.length === 0) return;
 
-    const map = L.map("heatmap");
+    const heat = L.heatLayer(points, { radius: 25 }).addTo(map);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-
-    const heat = L.heatLayer(points, { radius: 25 });
-    heat.addTo(map);
-
-    map.setView([reports[0].latitude, reports[0].longitude], 12);
+    map.setView([points[0][0], points[0][1]], 12);
 
     return () => {
-      map.remove();
+      map.removeLayer(heat);
     };
-  }, [reports]);
+  }, [reports, map]);
 
-  return <div id="heatmap" style={{ height: "400px" }} />;
+  return null;
+};
+
+const HeatmapView = ({ reports }) => {
+  return (
+    <MapContainer
+      center={[26.8467, 80.9462]} // default (Lucknow)
+      zoom={12}
+      style={{ height: "400px" }}
+    >
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <HeatLayer reports={reports} />
+    </MapContainer>
+  );
 };
 
 export default HeatmapView;

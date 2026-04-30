@@ -111,7 +111,7 @@ if (
       {report.image && (
         <div className="mt-4">
           <h3 className="font-semibold mb-2">Reported Image</h3>
-          <img src={report.image_url} 
+          <img src={report.image} 
             className="w-64 rounded shadow"
           />
         </div>
