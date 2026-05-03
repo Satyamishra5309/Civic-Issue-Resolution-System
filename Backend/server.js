@@ -5,7 +5,8 @@ import connectDB from "./config/db.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import teamRoutes from "./routes/teamRoutes.js";
-import feedbackRoutes from "./routes/feedbackRoutes.js"
+import feedbackRoutes from "./routes/feedbackRoutes.js";
+import issueRoutes from "./routes/issueRoutes.js";
 import http from "http";
 import {Server} from "socket.io";
 
@@ -36,7 +37,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/teams", teamRoutes);
-app.use("/api/feedback", feedbackRoutes )
+app.use("/api/feedback", feedbackRoutes );
+app.use("/api/issues", issueRoutes);
 app.get("/", (req, res) => {
   res.send("API Running...");
 });

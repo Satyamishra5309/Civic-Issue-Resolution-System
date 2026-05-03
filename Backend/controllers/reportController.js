@@ -109,6 +109,20 @@ export const assignTeam = async (req, res) => {
   }
 };
 
+export const getAssignedIssues = async (req, res) => {
+  try {
+    const teamId = req.team.id; // coming from token
+
+    const report = await Report.find({ assignedTeam: teamId });
+
+    res.json(report);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
+};
+
 
 // 🟡 FIELD WORKER: Start Work
 export const startWork = async (req, res) => {
@@ -124,6 +138,22 @@ export const startWork = async (req, res) => {
     io.emit("issue_updated", report);
 
     res.json({ msg: "Work started" });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+export const getReportsByTeam = async (req, res) => {
+  try {
+    const { teamId } = req.params;
+
+    const reports = await Report.find({
+      assignedTeam: teamId,
+      status: { $ne: "Completed" }
+    }).sort({ submission_date: -1 });
+
+    res.json(reports);
+
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }

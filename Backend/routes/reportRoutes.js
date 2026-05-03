@@ -6,6 +6,7 @@ import {
   getReportById,
   createReport,
   assignTeam,
+  getReportsByTeam,
   startWork,
   uploadCompletionProof,
   verifyReport
@@ -41,7 +42,7 @@ router.post("/assign", assignTeam);
 // 🟡 FIELD WORKER: Start work
 router.post("/start", startWork);
 
-
+router.get("/team/:teamId", getReportsByTeam);
 // 🟣 FIELD WORKER: Upload completion proof
 router.post(
   "/complete-request",
