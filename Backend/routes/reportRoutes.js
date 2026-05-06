@@ -1,5 +1,7 @@
 import express from "express";
 import upload from "../middleware/upload.js"; // ✅ Cloudinary upload
+import { authTeam } from "../middleware/authteam.js";
+import { getAssignedIssues } from "../controllers/reportController.js";
 
 import {
   getReports,
@@ -38,7 +40,7 @@ router.post("/", upload.single("image"), (req, res, next) => {
 // 🔵 ADMIN: Assign team
 router.post("/assign", assignTeam);
 
-
+router.get("/assigned", authTeam, getAssignedIssues);
 // 🟡 FIELD WORKER: Start work
 router.post("/start", startWork);
 
