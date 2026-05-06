@@ -172,7 +172,7 @@ export const uploadCompletionProof = async (req, res) => {
     }
 
     // ✅ Cloudinary URL (IMPORTANT FIX)
-    const imageUrl = req.file?.path || "";
+   const imageUrl = req.file?.secure_url || req.file?.path || "";
 
     report.completionImage = imageUrl;
     report.completionLocation = {

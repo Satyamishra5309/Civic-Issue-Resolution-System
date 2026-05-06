@@ -38,12 +38,12 @@ const reportSchema = new mongoose.Schema({
   },
 
   // 🟣 COMPLETION PROOF (FIELD WORKER)
-  completionImage: String,
+completionImage: String,
 
-  completionLocation: {
-    lat: Number,
-    lng: Number,
-  },
+completionLocation: {
+  lat: Number,
+  lng: Number
+},
 
   // 🔴 ADMIN VERIFICATION
   verificationStatus: {
