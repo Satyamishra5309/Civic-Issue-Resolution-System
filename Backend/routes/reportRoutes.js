@@ -19,6 +19,7 @@ const router = express.Router();
 
 // 🔹 GET ROUTES
 router.get("/", getReports);
+router.get("/assigned", authTeam, getAssignedIssues);
 router.get("/:id", getReportById);
 
 
@@ -40,7 +41,7 @@ router.post("/", upload.single("image"), (req, res, next) => {
 // 🔵 ADMIN: Assign team
 router.post("/assign", assignTeam);
 
-router.get("/assigned", authTeam, getAssignedIssues);
+
 // 🟡 FIELD WORKER: Start work
 router.post("/start", startWork);
 
