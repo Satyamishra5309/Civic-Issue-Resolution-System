@@ -61,8 +61,8 @@ export const createReport = async (req, res) => {
     const report = new Report({
       problem_type,
       description,
-      lat: parseFloat(lat),
-      lng: parseFloat(lng),
+      latitude: parseFloat(lat),
+      longitude: parseFloat(lng),
       image: imageUrl,
     });
 
