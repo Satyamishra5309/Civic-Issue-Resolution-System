@@ -97,65 +97,148 @@ if (
     <MainLayout>
 
       {/* 🔥 HEADER */}
-      <h2 className="text-2xl font-bold mb-4">
-        {report.problem_type}
-      </h2>
-
-      {/* 📊 BASIC INFO */}
-      <div className="space-y-2">
-        <p><strong>Status:</strong> {report.status}</p>
-        <p><strong>Priority:</strong> {report.priority}</p>
-      </div>
-
-      {/* 📸 USER IMAGE */}
-      {report.image && (
-        <div className="mt-4">
-          <h3 className="font-semibold mb-2">Reported Image</h3>
-          <img src={report.image} 
-            className="w-64 rounded shadow"
-          />
-        </div>
-      )}
-
-      {/* 🛠 COMPLETION PROOF */}
-      {report.completionImage && (
-        <div className="mt-4">
-          <h3 className="font-semibold mb-2">Completion Proof</h3>
-         <img
-            src={report.completionImage}
-            className="w-64 rounded shadow"
-          />
-        </div>
-      )}
-
-      {/* 📍 MAP */}
-      <div className="mt-6">
-              {distance !== null && (
-  <div className="mt-4 p-3 bg-gray-100 rounded">
-    <p className="font-semibold">
-      📏 Distance: {(distance * 1000).toFixed(0)} meters
-    </p>
-
-    {distance * 1000 < 100 ? (
-      <p className="text-green-600">✔ Valid completion</p>
-    ) : (
-      <p className="text-red-600">❌ Suspicious (far location)</p>
-    )}
-  </div>
-)}
-        <h2 className="text-lg font-semibold mb-2">Problem Location</h2>
-        <div className="mt-6 bg-white p-5 rounded-2xl shadow-lg">
-  <h2 className="text-lg font-semibold mb-4 text-gray-700">
-    📍 Location Verification
+      <div className="mb-6">
+  <h2 className="text-3xl font-bold text-gray-800">
+    {report.problem_type}
   </h2>
 
+  <p className="text-gray-500 mt-1">
+    Report ID: #{report._id.slice(-5)}
+  </p>
+</div>
 
-  <div className="h-[420px] w-full rounded-xl overflow-hidden border">
-    <MapView report={report} />
+      {/* 📊 BASIC INFO */}
+<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+
+  {/* Status */}
+  <div className="bg-white p-4 rounded-2xl shadow border">
+    <p className="text-gray-500 text-sm mb-1">Status</p>
+
+    <span
+      className={`
+        font-semibold text-lg
+        ${report.status === "Pending" ? "text-orange-500" : ""}
+        ${report.status === "In Progress" ? "text-blue-500" : ""}
+        ${report.status === "Verification Pending" ? "text-red-500" : ""}
+        ${report.status === "Completed" ? "text-green-500" : ""}
+      `}
+    >
+      {report.status}
+    </span>
+  </div>
+
+  {/* Priority */}
+  <div className="bg-white p-4 rounded-2xl shadow border">
+    <p className="text-gray-500 text-sm mb-1">Priority</p>
+
+    <span className="font-semibold text-lg">
+      {report.priority}
+    </span>
+  </div>
+
+  {/* Description */}
+  <div className="bg-white p-4 rounded-2xl shadow border">
+    <p className="text-gray-500 text-sm mb-1">Description</p>
+
+    <p className="text-gray-700">
+      {report.description || "No description"}
+    </p>
+  </div>
+
+</div>
+
+      {/* 📸 IMAGES */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+  {/* Reported Image */}
+  {report.image && (
+    <div className="bg-white p-4 rounded-2xl shadow border">
+      <h3 className="font-semibold mb-3 text-gray-700 text-lg">
+        Reported Image
+      </h3>
+
+      <div className="overflow-hidden rounded-xl">
+        <img
+          src={report.image}
+          className="w-full h-80 object-cover hover:scale-105 transition duration-300"
+        />
+      </div>
+    </div>
+  )}
+
+  {/* Completion Proof */}
+  {report.completionImage && (
+    <div className="bg-white p-4 rounded-2xl shadow border">
+      <h3 className="font-semibold mb-3 text-gray-700 text-lg">
+        Completion Proof
+      </h3>
+
+      <div className="overflow-hidden rounded-xl">
+        <img
+          src={report.completionImage}
+          className="w-full h-80 object-cover hover:scale-105 transition duration-300"
+        />
+      </div>
+    </div>
+  )}
+
+</div>
+
+{/* 📍 MAP */}
+<div className="mt-8">
+
+  {/* Distance Box */}
+  {distance !== null && (
+    <div className="mb-5 bg-white border shadow rounded-2xl p-4 flex items-center justify-between">
+
+      <div>
+        <p className="text-sm text-gray-500">
+          Verification Distance
+        </p>
+
+        <h3 className="text-2xl font-bold text-gray-800">
+          {(distance * 1000).toFixed(0)} meters
+        </h3>
+      </div>
+
+      <div>
+        {distance * 1000 < 100 ? (
+          <span className="bg-green-100 text-green-600 px-4 py-2 rounded-full font-medium">
+            ✔ Valid Completion
+          </span>
+        ) : (
+          <span className="bg-red-100 text-red-600 px-4 py-2 rounded-full font-medium">
+            ❌ Suspicious Location
+          </span>
+        )}
+      </div>
+
+    </div>
+  )}
+
+  {/* Map */}
+  <div className="bg-white rounded-3xl shadow-xl border overflow-hidden">
+
+    {/* Header */}
+    <div className="px-6 py-4 border-b bg-gray-50">
+      <h2 className="text-xl font-bold text-gray-800">
+        📍 Problem Location
+      </h2>
+
+      <p className="text-sm text-gray-500 mt-1">
+        Compare reported location with completion proof location
+      </p>
+    </div>
+
+    {/* Map */}
+    <div className="h-[500px] w-full">
+      <MapView report={report} />
+    </div>
+
   </div>
 </div>
 
-      </div>
+      
 
       {/* ⭐ FEEDBACK (ONLY AFTER COMPLETION) */}
       {report.status === "Completed" && (

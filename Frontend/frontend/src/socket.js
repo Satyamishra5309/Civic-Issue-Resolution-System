@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const socket = io(import.meta.env.VITE_SOCKET_URL, {
+const socket = io("http://localhost:5000", {
   transports: ["websocket"],     // 🔥 force stable connection
   autoConnect: true,
   reconnection: true,
@@ -8,4 +8,4 @@ const socket = io(import.meta.env.VITE_SOCKET_URL, {
   reconnectionDelay: 1000,
 });
 
-export default socket;
+export default socket;/*import.meta.env.VITE_SOCKET_URL*/

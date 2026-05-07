@@ -147,8 +147,7 @@ const ReportTable = ({ reports = [] }) => {
                 {/* 📸 Completion Proof */}
                 <td className="p-4">
                   {r.completionImage ? (
-                    <img
-                      src={`http://localhost:5000${r.completionImage}`}
+                    <img src={r.completionImage}
                       className="w-16 h-16 object-cover rounded"
                     />
                   ) : (
@@ -177,14 +176,7 @@ const ReportTable = ({ reports = [] }) => {
                   )}
 
                   {/* Start */}
-                  {r.status === "Assigned" && (
-                    <button
-                      onClick={() => handleStart(r._id)}
-                      className="bg-blue-500 text-white px-2 py-1 rounded"
-                    >
-                      Start
-                    </button>
-                  )}
+                 
 
                   {/* Verify */}
                   {r.status === "Verification Pending" && (

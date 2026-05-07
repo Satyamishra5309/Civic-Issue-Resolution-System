@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Navigate } from "react-router-dom";
+import TeamDetails from "./pages/TeamDetails";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/reports/:id" element={<ReportDetails />} />
         <Route path="/teams" element={<Teams />} />
         <Route path="/feedback" element={<Feedback />} />
+        <Route path="/teams/:id" element={<TeamDetails />} />
       </Routes>
   );
 }
