@@ -2,6 +2,7 @@ import express from "express";
 import upload from "../middleware/upload.js"; // ✅ Cloudinary upload
 import { authTeam } from "../middleware/authteam.js";
 import { getAssignedIssues } from "../controllers/reportController.js";
+import userAuth from "../middleware/userauth.js";
 
 import {
   getReports,
@@ -32,11 +33,30 @@ router.get("/:id", getReportById);
 //   next();
 // }, createReport);
 
-router.post("/", upload.single("image"), (req, res, next) => {
-  console.log("🔥 FILE AFTER FIX:", req.file);
-  next();
-}, createReport);
+router.post(
+  "/",
 
+  userAuth,
+
+  upload.single("image"),
+
+  (req, res, next) => {
+
+    console.log(
+      "🔥 FILE AFTER FIX:",
+      req.file
+    );
+
+    console.log(
+      "🔥 USER:",
+      req.user
+    );
+
+    next();
+  },
+
+  createReport
+);
 
 // 🔵 ADMIN: Assign team
 router.post("/assign", assignTeam);

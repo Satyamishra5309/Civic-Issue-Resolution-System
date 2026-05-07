@@ -8,6 +8,7 @@ import teamRoutes from "./routes/teamRoutes.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
 import http from "http";
 import {Server} from "socket.io";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -33,6 +34,10 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // routes
+app.use(
+  "/api/users",
+  userRoutes
+);
 app.use("/api/auth", authRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/teams", teamRoutes);

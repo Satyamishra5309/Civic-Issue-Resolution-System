@@ -59,6 +59,7 @@ export const createReport = async (req, res) => {
 }
 
     const report = new Report({
+      user: req.user.id,
       problem_type,
       description,
       latitude: parseFloat(lat),
