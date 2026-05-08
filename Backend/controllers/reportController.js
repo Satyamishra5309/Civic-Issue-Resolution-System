@@ -197,42 +197,96 @@ export const uploadCompletionProof = async (req, res) => {
 
 // 🔴 ADMIN: Verify and Complete
 export const verifyReport = async (req, res) => {
-  const { reportId, approved } = req.body;
+
+  const {
+
+    reportId,
+
+    approved,
+
+    rejectionMessage
+
+  } = req.body;
 
   try {
+
     const report = await Report.findById(reportId)
       .populate("assignedTeam");
 
     if (!report) {
-      return res.status(404).json({ msg: "Report not found" });
+
+      return res.status(404).json({
+        msg: "Report not found"
+      });
     }
 
+    // ✅ APPROVED
     if (approved) {
+
       report.status = "Completed";
+
       report.verificationStatus = "Approved";
 
+      report.rejectionMessage = "";
+
+      report.completedAt = new Date();
+
+      // 🟢 Make Team Available Again
       if (report.assignedTeam) {
-        const team = await Team.findById(report.assignedTeam._id);
-        team.status = "Available";
-        await team.save();
+
+        const team = await Team.findById(
+          report.assignedTeam._id
+        );
+
+        if (team) {
+
+          team.status = "Available";
+
+          await team.save();
+        }
       }
 
-      // 🔥 notify frontend
-      io.emit("issue_completed", report);
+      // 🔥 realtime
+      io.emit(
+        "issue_completed",
+        report
+      );
 
     } else {
+
+      // ❌ REJECTED
+      report.status = "Rejected";
+
       report.verificationStatus = "Rejected";
 
-      // optional: revert to In Progress
-      report.status = "In Progress";
+      report.rejectionMessage =
+        rejectionMessage ||
+        "Suspicious completion proof location";
 
-      io.emit("issue_updated", report);
+      // 🔥 realtime
+      io.emit(
+        "issue_rejected",
+        report
+      );
     }
 
     await report.save();
 
-    res.json({ msg: "Verification updated" });
+    res.json({
+
+      msg: approved
+        ? "Report verified successfully"
+        : "Report rejected successfully",
+
+      report
+    });
+
   } catch (err) {
-    res.status(500).json({ msg: err.message });
+
+    console.error(err);
+
+    res.status(500).json({
+      msg: err.message
+    });
   }
 };

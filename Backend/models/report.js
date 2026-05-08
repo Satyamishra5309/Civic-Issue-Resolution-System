@@ -27,6 +27,7 @@ const reportSchema = new mongoose.Schema({
       "Assigned",
       "In Progress",
       "Verification Pending",
+      "Rejected",
       "Completed"
     ],
     default: "Pending",
@@ -59,6 +60,12 @@ completionLocation: {
     enum: ["Pending", "Approved", "Rejected"],
     default: "Pending",
   },
+
+  // ❌ ADMIN REJECTION MESSAGE
+rejectionMessage: {
+  type: String,
+  default: "",
+},
 
   // 📅 TIMESTAMPS
   submission_date: {
