@@ -59,11 +59,28 @@ const Dashboard = () => {
       fetchTeams();
     });
 
+    // ❌ Rejected
+socket.on("issue_rejected", (updatedReport) => {
+
+  setReports((prev) =>
+
+    prev.map((r) =>
+
+      r._id === updatedReport._id
+
+        ? updatedReport
+
+        : r
+    )
+  );
+});
+
     return () => {
       socket.off("new_issue");
       socket.off("issue_updated");
       socket.off("verification_pending");
       socket.off("issue_completed");
+      socket.off("issue_rejected");
     };
   }, []);
 
@@ -73,6 +90,7 @@ const Dashboard = () => {
   const assigned = reports.filter(r => r.status === "Assigned").length;
   const progress = reports.filter(r => r.status === "In Progress").length;
   const verification = reports.filter(r => r.status === "Verification Pending").length;
+  const rejected = reports.filter(r => r.status === "Rejected").length;
   const completed = reports.filter(r => r.status === "Completed").length;
 
   return (
@@ -89,7 +107,8 @@ const Dashboard = () => {
       <Card title="Pending" value={pending} color="from-yellow-400 to-yellow-600" />
       <Card title="Assigned" value={assigned} color="from-purple-500 to-purple-700" />
       <Card title="In Progress" value={progress} color="from-indigo-500 to-indigo-700" />
-      <Card title="Verification" value={verification} color="from-orange-400 to-orange-600" />
+      <Card title="Verification Pending" value={verification} color="from-orange-400 to-orange-600" />
+      <Card title="Rejected" value={rejected} color="from-red-400 to-red-600" />
       <Card title="Completed" value={completed} color="from-green-500 to-green-700" />
     </div>
 

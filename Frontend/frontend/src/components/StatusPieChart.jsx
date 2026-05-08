@@ -5,6 +5,7 @@ const COLORS = [
   "#a855f7", // Assigned
   "#6366f1", // In Progress
   "#fb923c", // Verification
+  "#FF0000", // rejected
   "#22c55e", // Completed
 ];
 
@@ -14,6 +15,7 @@ const StatusPieChart = ({ reports }) => {
     { name: "Assigned", value: reports.filter(r => r.status === "Assigned").length },
     { name: "In Progress", value: reports.filter(r => r.status === "In Progress").length },
     { name: "Verification", value: reports.filter(r => r.status === "Verification Pending").length },
+    { name: "Rejected", value: reports.filter(r => r.status === "Rejected").length },
     { name: "Completed", value: reports.filter(r => r.status === "Completed").length },
   ];
 

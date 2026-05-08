@@ -17,6 +17,8 @@ const getStatusStyle = (status) => {
       return "bg-blue-100 text-blue-700";
     case "Verification Pending":
       return "bg-orange-100 text-orange-700";
+    case "Rejected":
+      return "bg-red-100 text-red-700";  
     case "Completed":
       return "bg-green-100 text-green-700";
     default:
@@ -42,6 +44,9 @@ const ReportTable = ({ reports = [] }) => {
   const [status, setStatus] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState(null);
+  const [rejectModal, setRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectReportId, setRejectReportId] = useState(null);
 
   const navigate = useNavigate();
 
@@ -78,6 +83,33 @@ const ReportTable = ({ reports = [] }) => {
     }
   };
 
+  // ❌ Reject Verification
+const handleReject = async () => {
+
+  try {
+
+    await verifyReport({
+
+      reportId: rejectReportId,
+
+      approved: false,
+
+      rejectionMessage: rejectReason
+
+    });
+
+    setRejectModal(false);
+
+    setRejectReason("");
+
+    setRejectReportId(null);
+
+  } catch (err) {
+
+    console.error(err);
+  }
+};
+
   // 🔍 Filter
   const filtered = reports.filter((r) => {
     return (
@@ -105,6 +137,7 @@ const ReportTable = ({ reports = [] }) => {
           <option>Assigned</option>
           <option>In Progress</option>
           <option>Verification Pending</option>
+          <option>Rejected</option>
           <option>Completed</option>
         </select>
       </div>
@@ -135,8 +168,19 @@ const ReportTable = ({ reports = [] }) => {
                 <td className="p-4">
                   <span className={`px-2 py-1 rounded ${getStatusStyle(r.status)}`}>
                     {r.status}
-                  </span>
+                    </span>
+                    {r.rejectionMessage && (
+
+  <p className="text-xs text-red-600 mt-1">
+
+    Reason: {r.rejectionMessage}
+
+  </p>
+)}
+                  
                 </td>
+
+
 
                 <td className="p-4">
                   <span className={`px-2 py-1 rounded ${getPriorityStyle(r.priority)}`}>
@@ -156,7 +200,7 @@ const ReportTable = ({ reports = [] }) => {
                 </td>
 
                 {/* ⚡ Actions */}
-                <td className="p-4 space-x-2">
+                <td className="p-4 flex items-start gap-2">
 
                   <button
                     onClick={() => navigate(`/reports/${r._id}`)}
@@ -166,27 +210,58 @@ const ReportTable = ({ reports = [] }) => {
                   </button>
 
                   {/* Assign */}
-                  {r.status === "Pending" && (
-                    <button
-                      onClick={() => handleAssign(r._id)}
-                      className="bg-green-500 text-white px-2 py-1 rounded"
-                    >
-                      Assign
-                    </button>
-                  )}
+                 {r.status === "Pending" && (
 
-                  {/* Start */}
+  <div className="inline-flex flex-col gap-2 align-top">
+
+    <button
+
+      onClick={() => handleAssign(r._id)}
+
+      className="bg-green-500 text-white px-2 py-1 rounded"
+
+    >
+      Assign
+    </button>
+
+  </div>
+)}
                  
 
                   {/* Verify */}
-                  {r.status === "Verification Pending" && (
-                    <button
-                      onClick={() => handleVerify(r._id)}
-                      className="bg-purple-600 text-white px-2 py-1 rounded"
-                    >
-                      Verify
-                    </button>
-                  )}
+                 {r.status === "Verification Pending" && (
+
+  <div className="inline-flex flex-col gap-2 align-top">
+
+    {/* ✅ Verify */}
+    <button
+
+      onClick={() => handleVerify(r._id)}
+
+      className="bg-purple-600 text-white px-2 py-1 rounded"
+
+    >
+      Verify
+    </button>
+
+    {/* ❌ Reject */}
+    <button
+
+      onClick={() => {
+
+        setRejectReportId(r._id);
+
+        setRejectModal(true);
+      }}
+
+      className="bg-red-600 text-white px-2 py-1 rounded"
+
+    >
+      Reject
+    </button>
+
+  </div>
+)}
 
                 </td>
 
@@ -200,6 +275,65 @@ const ReportTable = ({ reports = [] }) => {
           </tbody>
         </table>
       </div>
+
+      {/* ❌ Reject Modal */}
+{rejectModal && (
+
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+
+    <div className="bg-white p-6 rounded-xl w-[400px]">
+
+      <h2 className="text-xl font-semibold mb-4">
+
+        Reject Verification
+      </h2>
+
+      <textarea
+
+        placeholder="Enter rejection reason..."
+
+        value={rejectReason}
+
+        onChange={(e) =>
+          setRejectReason(e.target.value)
+        }
+
+        className="w-full border rounded-lg p-3 h-32"
+
+      />
+
+      <div className="flex justify-end gap-3 mt-4">
+
+        <button
+
+          onClick={() => {
+
+            setRejectModal(false);
+
+            setRejectReason("");
+          }}
+
+          className="px-4 py-2 border rounded-lg"
+        >
+          Cancel
+        </button>
+
+        <button
+
+          onClick={handleReject}
+
+          className="bg-red-600 text-white px-4 py-2 rounded-lg"
+
+        >
+          Reject
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
 
       <AssignModel
         isOpen={modalOpen}

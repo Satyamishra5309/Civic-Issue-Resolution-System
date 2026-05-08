@@ -123,6 +123,10 @@ const completed = reports.filter(
   (r) => r.status === "Completed"
 ).length;
 
+const rejected = reports.filter(
+  (r) => r.status === "Rejected"
+).length;
+
 const pending = reports.filter(
   (r) => r.status !== "Completed"
 ).length;
@@ -221,6 +225,16 @@ const COLORS = [
 
             <h2 className="text-4xl font-bold text-orange-500 mt-2">
               {pending}
+            </h2>
+          </div>
+
+          <div className="bg-white rounded-3xl shadow-lg border p-5">
+            <p className="text-gray-500 text-sm">
+              Rejected
+            </p>
+
+            <h2 className="text-4xl font-bold text-red-500 mt-2">
+              {rejected}
             </h2>
           </div>
 

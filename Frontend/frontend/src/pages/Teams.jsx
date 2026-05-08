@@ -74,7 +74,7 @@ const Teams = () => {
 
               <h2 className="text-3xl font-bold text-green-600">
                 {
-                  teams.filter((t) => t.status === "Active").length
+                  teams.filter((t) => t.status === "Available").length
                 }
               </h2>
             </div>
